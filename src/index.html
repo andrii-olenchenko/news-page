@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hello World</title>
+
+    <!-- Bootstrap 3  -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css" />
+   
+
+    <!-- React -->
+    <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+    
+    <!-- Redux -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.7.2/redux.js" crossorigin></script>
+    <script src="https://unpkg.com/react-redux@latest/dist/react-redux.js" crossorigin></script>
+    
+
+    <!-- XXX material-ui 
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+    <script src="https://unpkg.com/material-ui@next/umd/material-ui.production.min.js" crossorigin="anonymous"></script>
+    -->
+
+    <!-- From https://www.muicss.com/docs/v1/react/introduction-->
+    <link href="https://cdn.muicss.com/mui-0.9.38/css/mui.css" rel="stylesheet" type="text/css" />
+    <!--<script src="//unpkg.com/react@16.1.1/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16.1.1/umd/react-dom.production.min.js"></script>-->
+    <script src="https://cdn.muicss.com/mui-0.9.38/react/mui-react.js"></script>
+
+    <!-- Browser JSX compiler (for development only) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+
+    <style>
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+        }
+
+        .noHoverStyle { 
+            background-color: inherit !important;
+        }
+        .text-lg {
+            font-size: 36px;
+        }
+    </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <h1>News management</h1>
+                <div id="root"></div>
+            </div>    
+        </div>
+    <div id="example"></div>
+
+    <script type="text/babel">
+       
+
+    (function X(){
+
+
+    // fix 
+    window.URL = window.URL || window.webkitURL;
+
+    const TAB_HOME = "home";
+    const TAB_ATTACHMENTS = "attachments";
+    const TAB_TERRITORIES = "territories";
+
+    var DATA = {
+        clients: [
+            {id: 1, name: "Exadel", typeA:true, typeB:true, typeC:true},
+            {id: 2, name: "Oral-B", typeA:true, typeB:false, typeC:false}
+        ],
+        news:[
+            {id:1, clientId:0, headline: "Pro test1", body:"Pro text body 1", image:"1.gif"},
+            {id:2, clientId:0, headline: "Pro test1", body:"Pro text body 1", image:"1.gif"},
+            {id:10, clientId:1, type: "A", headline: "Ex test1", body:"Ex text body 1", image:"1.gif", territories:[1], brands:[]},
+            {id:11, clientId:1, type: "B", headline: "Ex test2", body:"Ex text body 2", image:"2.gif", territories:[4], brands:[]},
+            {id:12, clientId:1, type: "C", headline: "Ex test3", body:"Ex text body 3", image:"3.jpg"},
+            {id:20, clientId:2, type: "A", headline: "Or test1", body:"Or text body 1", image:"1.gif", territories:[], brands:[10, 11]},
+            {id:21, clientId:2, type: "A", headline: "Or test2", body:"Or text body 2", image:"2.gif", territories:[], brands:[12]},
+            {id:22, clientId:2, type: "A", headline: "Or test3", body:"Or text body 3", image:"3.jpg"}
+        ],
+        territories:[
+            {id:1, clientId:1, name:"World"},
+            {id:2, clientId:1, parentId:1, name:"America"},
+            {id:3, clientId:1, parentId:1, name:"Europe"},
+            {id:4, clientId:1, parentId:3, name:"Ukraine"},
+            {id:10, clientId:2, name:"World"},
+            {id:11, clientId:2, parentId:10, name:"America"},
+            {id:12, clientId:2, parentId:10, name:"Europe"},
+            {id:13, clientId:2, parentId:12, name:"Ukraine"}
+        ],
+        brands:[
+            {id:1, clientId:1, name:"Ex Brand One"},
+            {id:2, clientId:1, name:"Ex Brand Two"},
+            {id:3, clientId:1, name:"Ex Brand Three"},
+            {id:4, clientId:1, name:"Ex Brand Four"},
+            {id:10, clientId:2, name:"Or Brand one"},
+            {id:11, clientId:2, name:"Or Brand two"},
+            {id:12, clientId:2, name:"Or Brand three"}
+        ],
+        groups:[
+            {id:1, clientId:1, name:"Buy Now", description: "Buy Now Desc"},
+            {id:2, clientId:1, name:"Close soon"}
+        ],
+        current:{
+            clientId:1,
+            newsType:"A"
+        }    
+    }
+
+    // import { createStore } from 'redux'
+    // window.Redux.createStore
+
+    function news(state = DATA.news, action) {
+        switch (action.type) {
+            case 'ADD_NEWS':
+                return [...state, action.news];
+            case 'UPDATE_NEWS':
+                return state.map((news) => {
+                    return (news.id == action.news.id ) ? Object.assign({}, news, action.news) : news;
+                });
+            case 'REMOVE_NEWS':
+                return state.filter( news => news.id != action.id ); 
+            default:
+              return state
+        }
+    }
+
+    
+    function current(state = DATA.current, action) {
+        switch (action.type) {
+            case 'SET_CURRENT_CLIENT_ID':
+                return Object.assign({}, state, { clientId: action.value });
+            case 'SET_CURRENT_NEWS_TYPE':
+                return Object.assign({}, state, { newsType: action.value });    
+            default:
+              return state
+        }
+    }
+
+    const reducer = Redux.combineReducers({ news, current });
+    const store = Redux.createStore(reducer)
+     
+    // function appReducer(state = {}, action) {
+    //   switch (action.type) {
+    //     case 'CHANGE_CLIENT_ID':
+    //         let current = Object.assign({}, state.current, { selectedClientId: action.value} );
+    //         return Object.assign({}, state, { current: current });
+    //     default:
+    //       return state
+    //   }
+    // }
+
+    
+   
+
+    //let currentValue
+    //function handleChange() { console.log("State", store.getState());
+    //   let previousValue = currentValue
+    //   currentValue = store.getState().current.selectedClientId;
+    //  
+    //   if (previousValue !== currentValue) {
+    //     console.log(
+    //       'Some deep nested property changed from',
+    //       previousValue,
+    //       'to',
+    //       currentValue
+    //     )
+    //   }
+    //}
+     
+    //let store = window.Redux.createStore(appReducer, DATA);
+
+    
+    //store.dispatch({type: 'SET_CURRENT_CLIENT_ID', value: 2})
+    //store.dispatch({type: 'SET_CURRENT_CLIENT_ID', value: 1})
+     
+    //console.log(store.getState())
+
+    class App extends React.Component {
+        /* props = {data} */
+        constructor(props) {
+            super(props);
+            this.state = props.data.current; // {selectedClientId, selectedNewsType}
+            //this.handleClick = this.handleClick.bind(this);
+        }
+        // handleClick(clientId, newsType, e) {
+        //     this.setState({
+        //         selectedClientId: clientId,
+        //         selectedNewsType: newsType
+        //     })
+        //     console.log("this.state", this.state);
+        // }
+        render(){
+            return (
+                <div className='container-fluid'>
+                    <div className='row'>
+                        <div className='col-md-4'>
+                            <ClientList clients={this.props.data.clients} XonChangeSelection={this.handleClick}  />
+                             <Button color="primary">button</Button>
+                        </div>
+                        <div className='col-md-8'>
+                           <Panel clientId={this.state.selectedClientId} newsType={this.state.selectedNewsType}/>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+    }
+//Table, { TableBody, TableCell, TableHead, TableRow }
+    let Table = mui.react.Table;
+          //Button = mui.react.Button,
+          //Container = mui.react.Container;
+
+    function SimpleTable(props) {
+  //const { classes } = props;
+
+  return (
+    <Paper className={classes.root}>
+      <Table className={classes.table}>
+        <TableHead>
+          <TableRow>
+            <TableCell>Dessert (100g serving)</TableCell>
+            <TableCell numeric>Calories</TableCell>
+            <TableCell numeric>Fat (g)</TableCell>
+            <TableCell numeric>Carbs (g)</TableCell>
+            <TableCell numeric>Protein (g)</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data.map(n => {
+            return (
+              <TableRow key={n.id}>
+                <TableCell>{n.name}</TableCell>
+                <TableCell numeric>{n.calories}</TableCell>
+                <TableCell numeric>{n.fat}</TableCell>
+                <TableCell numeric>{n.carbs}</TableCell>
+                <TableCell numeric>{n.protein}</TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </Paper>
+  );
+}
+
+    class ClientList extends React.Component {
+        /* props = {clients, onChangeSelection} */
+        constructor(props) {
+            super(props);
+            //this.state = {x:null};
+            //this.handleClick = this.handleClick.bind(this);
+        }
+
+        // handleClick(id, type, e) {
+        //     // this.setState(prevState => ({
+        //     //   edit: !prevState.edit
+        //     // }));
+        //     //this.setState({selectedClient: id})
+        //     console.log("id", id);
+        //     console.log("type", type);
+        //     console.log("e", e);
+        //     //this.props.onChangeSelection(id, type, e);
+        //     this.props.onChangeSelection(id, type);
+        // }
+
+        render(){
+            //const handleClick = this.handleClick.bind(this)
+            //<a href="#" className="list-group-item" onClick={ (e) => handleClick(null, null, e)}><b>Help</b></a>
+            //<a href="#" className="list-group-item" onClick={ (e) => handleClick(0, "P", e) }><b>ProMost</b></a>
+            return (
+                <div className="list-group">
+                    <ClientListItem name="Help" id="Help" />
+                    <ClientListItem name="Common News" id="ProMost" />
+                    {this.props.clients.map(function(client){
+                        return [
+                            <ClientListItem key={client.id} id={client.id} name={client.name} />,
+                            client.typeA && <ClientListItem key={client.id + "A"} id={client.id} name={client.name} type={"A"} />,
+                            client.typeB && <ClientListItem key={client.id + "B" } id={client.id} name={client.name} type={"B"} />,
+                            client.typeC && <ClientListItem key={client.id + "C"} id={client.id} name={client.name} type={"C"} />
+                        ];
+                    })}
+                </div>
+            );
+        };
+    };
+
+    class ClientListItem extends React.Component {
+        /* props = {id, name, type, handleClick} */
+        constructor(props) {
+            super(props);
+            //this.state = {};
+            this.handleClick = this.handleClick.bind(this);
+        }
+        handleClick(e) {
+            //this.props.handleClick(this.props.id, this.props.type);
+            let current = store.getState().current
+            if (current.clientId != this.props.id) 
+                store.dispatch({type: 'SET_CURRENT_CLIENT_ID', value: this.props.id});
+            if (current.newsType != this.props.type) 
+                store.dispatch({type: 'SET_CURRENT_NEWS_TYPE', value: this.props.type})
+        }
+        getName(type){
+            switch(type){
+                case "A": return "Regular";
+                case "B": return "Image Only";
+                case "C": return "One Line";
+                default: return "";
+            }
+        }
+        render(){
+            if (this.props.type) {
+                return (<a href="#" className="list-group-item" onClick={this.handleClick}>&nbsp;&nbsp;&nbsp;{this.getName(this.props.type)} </a>)
+            } else {
+                return (<a href="#" className="list-group-item" onClick={this.handleClick}><b>{this.props.name}</b></a>) 
+            }
+        }               
+    }
+
+    /* ----- Panel ------- */
+
+
+    // const getNews = (news, clientId, newsType) => {
+    //     if (!clientId) {
+    //         return news.filter( it => !it.clientId );
+    //     } else {
+    //         return news.filter( it => it.clientId == clientId && it.type == newsType );
+    //     }
+    // }
+    //  
+    // const mapStateToProps = state => {
+    //   return {
+    //     news: getNews(state.todos, state.current.selectedClientId, state.current.selectedNewsType)
+    //   }
+    // }
+
+    class Panel extends React.Component {
+        /* props = {} */
+        constructor(props) {
+            super(props);
+            this.state = {clientId:"Help", newsType:null};
+            //this.handleClick = this.handleClick.bind(this);
+        }
+
+        componentDidMount() {
+            store.subscribe( () => {
+                let current = store.getState().current;
+                console.log(current);
+
+                if (this.state.clientId != current.clientId)
+                    this.setState(Object.assign(this.state, {clientId: current.clientId}));
+                if (this.state.newsType != current.newsType)
+                    this.setState(Object.assign(this.state, {newsType: current.newsType}));
+            });
+        }
+        
+        render(){
+            let news, clientId = this.state.clientId, type = this.state.newsType; 
+            switch (clientId) {
+                case "Help": news = []; break;
+                case "ProMost": news = store.getState().news.filter( it => !it.clientId); break;
+                default: news = store.getState().news.filter( it => it.clientId == clientId && it.type == type); break;
+            }        
+            
+            switch (this.state.clientId) {
+                case "Help":
+                    return <InfoPanel />
+                case "ProMost":
+                    return <NewsPanel news={news}/>;
+                default:
+                    switch (this.state.newsType) {
+                        case "A":
+                            return <NewsPanel news={news} clientId={this.state.clientId} newsType="A"/>;
+                        case "B":
+                            return <NewsPanel news={news} clientId={this.state.clientId} newsType="B"/>;
+                        case "C":
+                            return <NewsPanel news={news} clientId={this.state.clientId} newsType="C"/>;
+                        default:
+                            return <ClientPanel clientId={this.state.clientId} />;
+                    }
+            }
+        };
+    };
+
+    function InfoPanel(props) {
+        return (
+            <div>
+                <p className='text-muted'>
+                    News appear on Buyer's Home page. There are two main type of News: <b>ProMost</b> news and <b>Client</b> news. 
+                    <b>ProMost</b> news is kind of common news and available for all Buyers of all Clients. Instead <b>Client</b> news 
+                    is available for Buyers of the certain Client. For Client's news there are three sub-type: <em>Regular News</em>, 
+                    <em>News with Image Only</em> and <em>One Line News</em>. The distinguish between these kinds of news presents in the following table:
+                </p>
+                    <table className="mui-table mui-table--bordered">
+                        <thead>
+                        <tr>
+                            <th></th><th>Common</th><th colSpan="3">Client</th>
+                        </tr>
+                        <tr>
+                            <th></th><th></th><th>Regular</th><th>Image Only</th><th>One Line</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>Headline</td><td>+</td><td>+</td><td>+</td><td>+</td>
+                        </tr>
+                        <tr>
+                            <td>Body</td><td>+</td><td>+</td><td>+</td><td>+</td>
+                        </tr> 
+                        <tr>
+                            <td>startDateTime</td><td>+</td><td>+</td><td></td><td></td>
+                        </tr>
+                        <tr>
+                            <td>endDateTime</td><td>+</td><td>+</td><td></td><td></td>
+                        </tr>
+                        <tr>
+                            <td>Attachments</td><td>+</td><td>+</td><td></td><td></td>
+                        </tr>
+                        <tr>
+                            <td>Image</td><td>+</td><td>+</td><td>+</td><td></td>
+                        </tr>
+                        <tr>
+                            <td>Territories</td><td></td><td>+</td><td></td><td>+</td>
+                        </tr>
+                        <tr>
+                            <td>Brands</td><td></td><td>+</td><td></td><td>+</td>
+                        </tr>
+                        <tr>
+                            <td>Link</td><td></td><td></td><td>+</td><td>+</td>
+                        </tr>
+                        <tr>
+                            <td>Group</td><td></td><td></td><td></td><td>+</td>
+                        </tr>
+                        </tbody>
+                        
+                    </table> 
+            </div>
+        );
+    };
+
+    class ClientPanel extends React.Component {
+        /* props = {clientId} */
+        constructor(props) {
+            super(props);
+            this.state = {};
+        }
+        render(){
+            const clientId = this.props.clientId
+            const client = DATA.clients.find( it => it.id == clientId );
+            const groups = DATA.groups.filter( it => it.clientId == clientId );
+            return (
+                <div>
+                    <h4>Client News Settings</h4>
+                    <span className='text-muted'>... description here ...</span>
+                    <form>
+                        <div className="checkbox"> 
+                            <label>
+                                <input type="checkbox" defaultChecked={false} /> Allow Type A 
+                            </label>
+                        </div>
+                        <div className="checkbox"> 
+                            <label>
+                                <input type="checkbox" defaultChecked={false} /> Allow Type B
+                            </label>
+                        </div>
+                        <div className="checkbox"> 
+                            <label>
+                                <input type="checkbox" defaultChecked={false} /> Allow Type C
+                            </label>
+                        </div>
+                    </form>
+                    <table className="table">
+                        <thead>
+                            <tr><th>Group Name</th><th>Group Display Name</th></tr>
+                            {groups.map( it => <tr key={it.id}><td>{it.name}</td><td>{it.description}</td></tr> )}
+                        </thead>
+                        </table>
+                </div>
+            );
+        };
+    };
+
+    class NewsPanel extends React.Component {
+        /* props = {news, clientId, newsType} */
+        constructor(props) {
+            super(props);
+            //this.state = {clientId:"Help", newsType:null};
+            //this.handleClick = this.handleClick.bind(this);
+            console.log("NewsPanel.constructor");
+        }
+        componentDidMount() {
+            this.unsubscribe = store.subscribe( () => {
+                //let current = store.getState().current;
+                console.log("NewsPanel.subscribe");
+
+                // if (this.state.clientId != current.clientId)
+                //     this.setState(Object.assign(this.state, {clientId: current.clientId}));
+                // if (this.state.newsType != current.newsType)
+                //     this.setState(Object.assign(this.state, {newsType: current.newsType}));
+            });
+        }
+
+        componentWillUnmount() {
+            console.log("NewsPanel.unsubscribe");
+            this.unsubscribe();
+        }
+        //<NewsTable newsList={this.props.news} clientId={this.props.clientId} newsType={this.props.newsType} />
+
+        render(){
+            console.log("render NewsPanel")
+            //const promostNews = DATA.news.filter( it => !it.clientId );
+            return (
+                <div>
+                    <h4>News</h4>
+                    <span className='text-muted'>... description here ...</span>
+                    <NewsTableContainer />
+                </div>
+            );
+        };
+    };
+
+    class NewsTable extends React.Component {
+        /* props = {news, clientId, newsType} */
+        constructor(props) {
+            super(props);
+        }
+        render(){
+            console.log("render NewsTable")
+            return (
+                <table className='table table-hover'>
+                    <thead>
+                    <tr>
+                        <th>Headline</th>
+                        <th>Body</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {this.props.news.map( it => 
+                            <EditableRow key={it.id} news={it} /> 
+                        )}
+                        <EditableRow news={{}} />
+                    </tbody>
+                </table>   
+            );
+        };
+    }
+
+    const newsByCurrent = (news, current) => {
+        if (current.clientId == "ProMost") 
+            return news.filter( it => !it.clientId );
+        else
+            return news.filter( it => it.clientId == current.clientId && it.type == current.newsType);
+    }
+    const NewsTableContainer = ReactRedux.connect(
+        state => { return {
+            news: newsByCurrent(state.news, state.current)
+        }
+    })(NewsTable)
+
+    class EditableRow extends React.Component {
+        /* props = {news, clientId, newsType} */
+        constructor(props) {
+            super(props);
+            this.state = {edit: false};
+            this.handleClick = this.handleClick.bind(this);
+        }
+        handleClick(e){
+            this.setState(function(prevState){
+                return {edit: !prevState.edit};
+            });
+        }
+
+        render(){
+            var news = this.props.news;
+            return (
+                <React.Fragment>
+                    <tr className={this.state.edit ? "active" : ""} onClick={this.handleClick.bind(this)}>
+                        <td>{news.headline || "add new"}</td>
+                        <td>{news.body}</td>
+                    </tr>
+                    {this.state.edit && 
+                        <tr className='noHoverStyle'>
+                            <td colSpan="2">
+                                <EditNewsForm news={news} />
+                            </td>
+                        </tr>
+                    }
+                </React.Fragment>
+            )    
+        }
+    }
+
+    class EditNewsForm extends React.Component {
+         /* props = {news, clientId, newsType} */
+        constructor(props) {
+            super(props);
+            this.state = {tab: TAB_HOME};
+            
+            this.handleSubmit = this.handleSubmit.bind(this);
+        }
+
+        handleClick(tab, e){
+            e.preventDefault();
+            this.setState({tab:tab});
+        }
+
+        handleSubmit(e) {
+            e.preventDefault();
+            let clientId = store.getState().current.clientId;
+            let newsType = store.getState().current.newsType;
+            let news = {id:null, clientId:clientId, type: newsType, headline: this.state.headline, body:this.state.body, image:"3.jpg"};
+            store.dispatch({type: 'ADD_NEWS', news: news});
+        }
+
+        render(){
+            return (
+                <form onSubmit={this.handleSubmit}>
+                    <ul className="nav nav-tabs">
+                        <li role="presentation" className={this.state.tab == 'home' ? 'active' : ''}>
+                            <a href="#" onClick={this.handleClick.bind(this, 'home')}>
+                                <span className="glyphicon glyphicon-home" aria-hidden="true" />Details
+                            </a>
+                        </li>
+                        <li role="presentation" className={this.state.tab == 'attachments' ? 'active' : ''}>
+                            <a href="#" onClick={this.handleClick.bind(this, 'attachments')}>
+                                <span className="glyphicon glyphicon-paperclip" aria-hidden="true"></span>Attachments
+                            </a>
+                        </li>
+                        <li role="presentation" className={this.state.tab == 'territories' ? 'active' : ''}>
+                            <a href="#" onClick={this.handleClick.bind(this, 'territories')}>
+                                <span className="glyphicon glyphicon-globe" aria-hidden="true"></span>Territories
+                            </a>
+                        </li>
+                        <li role="presentation" className={this.state.tab == 'brands' ? 'active' : ''}>
+                            <a href="#" onClick={this.handleClick.bind(this, 'brands')}>
+                                <span className="glyphicon glyphicon-bold" aria-hidden="true"></span>Brand
+                            </a>
+                        </li>
+                    </ul>
+                    <div style={{border:"1px solid silver", borderTop:"none", padding:10, marginBottom:10}}>
+                        {this.state.tab == 'home' && <EditNewsDetails news={this.props.news} />}
+                        {this.state.tab == 'attachments' && <EditNewsAttachments news={this.props.news} />}
+                        {this.state.tab == 'territories' && <EditNewsTerritories news={this.props.news} />}
+                        {this.state.tab == 'brands' && <EditNewsBrands news={this.props.news} />}
+                    </div>
+                    <div className="text-right">
+                        <button type="submit" className="btn btn-primary">Submit</button> 
+                    </div>    
+                </form>
+            );
+        }
+    }
+
+    class EditNewsDetails extends React.Component {
+         /* props = {news, clientId, newsType} */
+        constructor(props) {
+            super(props);
+            this.state = {
+                edit: props.edit, 
+                groups:[],
+                headline:"",
+                body:"",
+                start:"",
+                end:"",
+                link:"",
+                group:""
+
+            };
+
+            this.handleChange = this.handleChange.bind(this);
+            this.handleImgChange = this.handleImgChange.bind(this);
+            this.handleSubmit = this.handleSubmit.bind(this);
+        }
+
+        handleChange(event) {
+            // Easy: this.setState({value: event.target.value});
+
+            const target = event.target;
+            const value = target.type === 'checkbox' ? target.checked : target.value;
+            const name = target.name;
+
+            this.setState({
+              [name]: value
+            });
+        }
+
+        handleImgChange(e) {
+            console.log(this.fileInput.files[0]);
+            var img = this.img;
+            var files = this.fileInput.files;
+            var accept = ["image/png"];
+
+            //if (accept.indexOf(files[0].mediaType) > -1) {
+                img.src = window.URL.createObjectURL(files[0]); //files[0].getAsDataURL();
+            //}
+        }
+
+        handleSubmit(e) {
+            e.preventDefault();
+        }
+
+        getImageSrc(){
+            return "images/" + this.props.news.image;
+        }
+
+        render() {
+            return (
+                <div className="row">
+                    <div className="col-md-8">
+                        <div className="form-group">
+                            <label>Headline</label>
+                            <input type="text" className="form-control" name="headline" value={this.state.headline} onChange={this.handleChange} placeholder="Headline" />
+                        </div>
+                          
+                        <div className="form-group">
+                            <label>Start</label>
+                            <input type="text" className="form-control" name="start" value={this.state.start} onChange={this.handleChange} placeholder="start date time" />
+                        </div>
+                        
+                        <div className="form-group">
+                            <label>End </label>
+                            <input type="text" className="form-control" name="end" value={this.state.end} onChange={this.handleChange} placeholder="end date time" />
+                        </div>
+
+                        <div className="form-group">
+                            <label>Link</label>
+                            <input type="text" className="form-control" name="link" value={this.state.link} onChange={this.handleChange} placeholder="link to page" />
+                        </div>
+
+                        <div className="form-group">
+                            <label>Group</label>
+                            <select className="form-control" name="group" value={this.state.group} onChange={this.handleChange} placeholder="group">
+                                <option>ORDER NOW</option>
+                                <option>SLOSE SOON</option>
+                            </select>
+                        </div>
+                        
+                        <div className="form-group">
+                            <label>News body</label>
+                            <textarea className="form-control" name="body" value={this.state.body} onChange={this.handleChange} />
+                        </div>
+                    </div>
+                    <div className="col-md-4">
+                        <img src={this.getImageSrc()} className="img-responsive" style={{width:"200px"}} alt="Responsive image" ref={ el => this.img = el }/>
+                        <label className="btn btn-default" htmlFor="img" >Select File</label>
+                        <input id="img" type="file" className="hidden" ref={(input) => { this.fileInput = input; }} onChange={this.handleImgChange} />
+                    </div>
+                </div>    
+            );
+        }
+    }
+
+    class EditNewsAttachments extends React.Component {
+        constructor(props) {
+            super(props);
+            //this.state = {tab: 'home'};
+            //this.handleClick = this.handleClick.bind(this);
+        }
+
+        componentDidMount() {
+            // let clientId = DATA.current.clientId;
+            // console.log("ClientId", clientId);
+            
+            // let client = DATA.clients.find( client => client.id == clientId );
+            // console.log("Client", client);
+
+            // let territories = DATA.territories.filter( territory => territory.clientId == clientId );
+            // console.log("territories", territories);
+
+            // let root = client.root;
+            // if (!root) {
+            //     root = territories.find( territory => !territory.parentId);
+            //     client.root = this.buildTree(root, territories);
+            // }
+
+            // this.setState({root: root});
+        }
+
+        render(){
+            return (
+                <div>
+                    <p className="text-muted">
+                        Manage news's attachments. Will be availbe for buyers to download
+                    </p>
+                    <table className="table">
+                        <thead>
+                            <tr>
+                                <th>Asset Name</th>
+                                <th>Asset description</th>
+                                <th>Original File Name</th>
+                                <th>Asset is Uploaded by</th>
+                                <th>Asset Size</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Promost Calendar_shared_30.01.2015.xlsx</td>
+                                <td></td>
+                                <td>Promost Calendar_shared_30.01.2015.xlsx</td>
+                                <td>Andrew Rich</td>
+                                <td>16.07 Kb</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>News Image Calendar.jpg</td>
+                                <td></td>
+                                <td>News Image Calendar.jpg</td>
+                                <td>Andrew Rich</td>
+                                <td>96.89 Kb</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colSpan="5">
+                                    Add new ...
+                                </td>
+                            </tr>    
+                        </tbody>
+                    </table>
+
+                </div>
+            );
+        }
+    }
+
+    class EditNewsTerritories extends React.Component {
+        /* props = {news, onClose} */
+        constructor(props) {
+            super(props);
+            this.state = {root:null};
+            //this.handleClick = this.handleClick.bind(this);
+        }
+        // handleClick(e){
+        //     this.setState(function(prevState){
+        //         return {edit: !prevState.edit};
+        //     });
+        // }
+        componentDidMount() {
+            // let clientId = DATA.current.clientId;
+            // console.log("ClientId", clientId);
+            
+            // let client = DATA.clients.find( client => client.id == clientId );
+            // console.log("Client", client);
+
+            // let territories = DATA.territories.filter( territory => territory.clientId == clientId );
+            // console.log("territories", territories);
+
+            // let root = client.root;
+            // if (!root) {
+            //     root = territories.find( territory => !territory.parentId);
+            //     client.root = this.buildTree(root, territories);
+            // }
+
+            // this.setState({root: root});
+        }
+
+        buildTree(parent, territories){
+            let children = DATA.territories.filter( territory => territory.parentId == parent.id );
+            parent.children = children;
+            children.forEach( t => this.buildTree(t, territories));
+        }
+        //{this.state.root && <TreeNode node={this.state.root} selectedNodes={this.props.news.territories} /> }
+        render(){
+            return (
+                <div> 
+                    <p className="text-muted">
+                        Assign Territories to this news. Only Buyers from selected territories can view this news.
+                    </p>
+                    <ul>
+                        <li>
+                            <input type="checkbox" /> World
+                            <ul>
+                                <li><input type="checkbox" /> America</li>
+                                <li><input type="checkbox" /> Europe
+                                    <ul>
+                                        <li><input type="checkbox" /> Ukraine</li>
+                                    </ul>    
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            );
+        }
+    }
+
+    class EditNewsBrands extends React.Component {
+        /* props = {news, onClose} */
+        constructor(props) {
+            super(props);
+            this.state = {brands:[]};
+        }
+        
+        componentDidMount() {
+            let clientId = DATA.current.clientId;
+            console.log("ClientId", clientId);
+            
+            let brands = DATA.brands.filter( brand => brand.clientId == clientId );
+            console.log("brands", brands);
+            
+            this.setState({brands: brands});
+        }
+
+        render(){
+            const newsBrands = this.props.news.brands || [];
+            return (
+                <div>
+                    <p className="text-muted">
+                        Assign Brands to this news. Only Buyers from selected Brands can view this news.
+                    </p>
+                    <ul className="list-unstyled">
+                        {this.state.brands.map( brand => 
+                            <li key={brand.id}>
+                                <div className="checkbox"> 
+                                    <label>
+                                        <input type="checkbox" defaultChecked={newsBrands.indexOf(brand.id) != -1} /> {brand.name}
+                                    </label>
+                                </div>
+                            </li> 
+                        )}
+                    </ul>
+                </div>
+            )
+        }
+    }
+
+    class TreeNode extends React.Component {
+        /* props ={node, selectedNodes} */
+        constructor(props) {
+            super(props);
+            this.state = {
+                active: false,
+                indetermined: false
+            };
+            this.handleClick = this.handleClick.bind(this);
+        }
+
+        componentDidMount(){
+            
+            this.el.indeterminate = true; //this.props.indeterminate;
+        //this.el.checked = this.props.checked; // fix for IE8
+        }
+
+        checked(){
+            return this.props.selectedNodes.indexOf(this.props.node.id) != -1;
+        }
+
+        handleClick(e) {
+            // this.setState(prevState => ({
+            //   edit: !prevState.edit
+            // }));
+            //this.setState({selectedClient: id})
+            // console.log("id", id);
+            // console.log("type", type);
+            // console.log("e", e);
+            //this.props.onChangeSelection(id, type, e);
+            //this.props.onChangeSelection(id, type);
+
+            //e.currentTarget.setAttribute("indetermined", true);
+        }
+        render(){
+            const selectedNodes = this.props.selectedNodes;
+            return (
+                <li style={{listStyleType: "none"}}>
+                    <div className="checkbox">
+                        <label>
+                          <input type="checkbox" ref={el => {this.el = el;}} defaultChecked={this.checked()} onClick={this.handleClik} /> {this.props.node.name}
+                        </label>
+                    </div>
+                    <ul>
+                        {this.props.node.children && this.props.node.children.map(function(it){
+                            return <TreeNode key={it.id} node={it} selectedNodes={selectedNodes} />
+                       })}
+                    </ul>
+                </li>
+            )
+        }
+    }
+
+    let Appbar = mui.react.Appbar,
+          Button = mui.react.Button,
+          Container = mui.react.Container;
+
+
+    ReactDOM.render(
+        <ReactRedux.Provider store={store}>
+            <App data={DATA}/>
+        </ReactRedux.Provider>,
+        document.getElementById('root')
+    ); 
+
+
+
+    /*  class Example extends React.Component {
+        render() {
+          return (
+            <div>
+              <Appbar></Appbar>
+              <Container>
+                <Button color="primary">button</Button>
+              </Container>
+            </div>
+          );
+        }
+      }
+          
+      ReactDOM.render(<Example />, document.getElementById('#example'));
+  */
+})();
+   
+    
+
+    </script>
+    <!--
+      Note: this page is a great way to try React but it's not suitable for production.
+      It slowly compiles JSX with Babel in the browser and uses a large development build of React.
+
+      To set up a production-ready React build environment, follow these instructions:
+      * https://reactjs.org/docs/add-react-to-a-new-app.html
+      * https://reactjs.org/docs/add-react-to-an-existing-app.html
+
+      You can also use React without JSX, in which case you can remove Babel:
+      * https://reactjs.org/docs/react-without-jsx.html
+      * https://reactjs.org/docs/cdn-links.html
+    -->
+  </body>
+</html>
