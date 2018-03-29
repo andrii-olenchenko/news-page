@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en-us">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.muicss.com/mui-0.9.38/css/mui.css" rel="stylesheet" type="text/css" />
+    <link href="./style.css" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+    <script src="https://unpkg.com/react@16.1.1/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16.1.1/umd/react-dom.development.js"></script>
+    <script src="https://cdn.muicss.com/mui-0.9.38/react/mui-react.js"></script>
+    <!-- Browser JSX compiler (for development only) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+</head>
+
+<body>
+    <div style="width: 980px; margin:auto; border-right: 1px solid silver; border-left: 1px solid silver; ">
+        <div id="example"></div>
+    </div>
+    <script type="text/babel" src="./store.js" crossorigin></script>
+    <script type="text/babel" src="./app.jsx" crossorigin></script>
+    <script type="text/babel" src="./info.jsx" crossorigin></script>
+    <script type="text/babel" src="./clients.jsx" crossorigin></script>
+    <script type="text/babel" src="./newsPanel.jsx" crossorigin></script>
+    <script type="text/babel">
+        ReactDOM.render(
+        <App data={data3}/>, document.getElementById('example'));
+    </script>
+</body>
+
+</html>
